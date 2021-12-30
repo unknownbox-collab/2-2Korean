@@ -39,38 +39,18 @@ class Graph:
     def __init__(self) -> None:
         self.nodes = {}
         self.edges = []
-        self.edgesByNode1 = {}
-        self.edgesByNode2 = {}
     
     def insertNode(self, node):
         self.nodes[node.id] = node
-    
-    def addEdgeWhatever(self, edge):
-        self.edges.append(edge)
-
-        if edge.node1 in self.edgesByNode1.keys():
-            self.edgesByNode1[edge.node1].append(edge)
-        else: 
-            self.edgesByNode1[edge.node1] = [edge]
-        
-        if edge.node2 in self.edgesByNode2.keys():
-            self.edgesByNode2[edge.node2].append(edge)
-        else: 
-            self.edgesByNode2[edge.node2] = [edge]
 
     def insertEdge(self, edge):
-        if edge.node1 in self.nodes.keys() and edge.node2 in self.nodes.keys():
-            if edge.node1 in self.edgesByNode1.keys() and edge.node2 in self.edgesByNode2.keys():
-                node1Tonode2 = edge.node2 in map(lambda x: x.node2, self.edgesByNode1[edge.node1])
-                node2Tonode1 = edge.node1 in map(lambda x: x.node1, self.edgesByNode2[edge.node2])
-                if not (node1Tonode2 or node2Tonode1):
-                    self.addEdgeWhatever(edge)
-                else:
-                    raise Exception("Target node already has same edge.")
-            else:
-                self.addEdgeWhatever(edge)
+        cond = (self.nodes.get(edge.node1) is not None) and (self.nodes.get(edge.node2) is not None)
+        if cond:
+            self.nodes[edge.node1].edges.append(edge)
+            self.nodes[edge.node2].edges.append(edge)
+            self.edges.append(edge)
         else:
-            raise Exception("Target node does not exist.")
+            raise Exception("Node doesn't exist.")
     
     def __repr__(self) -> str:
         return  f'nodes : {list(self.nodes.values())}\nedges : {self.edges}'
@@ -79,7 +59,7 @@ class Node:
     def __init__(self) -> None:
         global nodeId
         self.id = nodeId
-        self.visited = False
+        self.edges = []
         nodeId += 1
 
     def __repr__(self) -> str:
@@ -115,6 +95,7 @@ class PrimAlgorithm(Algorithm):
     
     def __call__(self):
         graph = self.graph
+        visit = []
         for i in range(len(graph.nodes)):
             nowNode = random.choice(tuple(graph.nodes.keys()))
             self.graph.nodes[nowNode].visited = True
