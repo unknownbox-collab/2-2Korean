@@ -1,11 +1,11 @@
 import random, copy
+from typing import NewType
 
 GRAPH = 0
 NODE = 1
 EDGE = 2
 PRIM = 3
 KRUSKAL = 4
-SOLIN = 5
 
 A = 0
 B = 1
@@ -32,8 +32,6 @@ class Factory:
             return PrimAlgorithm()
         elif className == KRUSKAL:
             return KruskalAlgorithm()
-        elif className == SOLIN:
-            return SolinAlgorithm()
 
 class Graph:
     def __init__(self) -> None:
@@ -59,6 +57,7 @@ class Node:
     def __init__(self) -> None:
         global nodeId
         self.id = nodeId
+        self.visited = False
         self.edges = []
         nodeId += 1
 
@@ -95,19 +94,15 @@ class PrimAlgorithm(Algorithm):
     
     def __call__(self):
         graph = self.graph
-        visit = []
+        visited = []
         for i in range(len(graph.nodes)):
             nowNode = random.choice(tuple(graph.nodes.keys()))
+            visited.append(nowNode)
             self.graph.nodes[nowNode].visited = True
+            visited.append(nowNode)
             nowNode = graph[nowNode]
-            cand = {}
-            target = max(tuple(cand.values()), key = lambda x : x.weight)
             
 class KruskalAlgorithm(Algorithm):
-    def __init__(self) -> None:
-        super().__init__()
-
-class SolinAlgorithm(Algorithm):
     def __init__(self) -> None:
         super().__init__()
 
@@ -148,7 +143,3 @@ prim.setting(g)
 # 6. 크루스칼 알고리즘 실행
 kruskal = Factory.getInstance(KRUSKAL)
 kruskal.setting(g)
-
-# 7. 솔린 알고리즘 실행
-solin = Factory.getInstance(SOLIN)
-solin.setting(g)
